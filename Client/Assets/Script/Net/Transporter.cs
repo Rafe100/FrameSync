@@ -137,4 +137,12 @@ public class Transporter : MonoBehaviour
 public class ReceiveData {
     public UInt16 MsgId;
     public object MsgObject;
+    public ReceiveData() {
+
+    }
+
+    public ReceiveData(UInt16 id , object obj) {
+        MsgId = id;
+        MsgObject = obj;
+    }
 }

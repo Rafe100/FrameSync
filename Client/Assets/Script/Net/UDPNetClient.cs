@@ -27,9 +27,10 @@ public class UDPNetClient : NetClient
 
     protected override void Connect() {
         base.Connect();
+        Debug.Log("udp connect");
     }
 
 
-   
+
 
 }

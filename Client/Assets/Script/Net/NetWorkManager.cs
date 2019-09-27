@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class NetWorkManager : SingleInstance<NetWorkManager> {
     public string Host = "127.0.0.1";
-    public int tcpPort = 10083;
-    public int udpPort = 10082;
+    public int tcpPort = 3001;
+    public int udpPort = 3002;
     MessagHandler message;
     NetClient tcpClient;
     NetClient udpClinet;
 
     public NetWorkManager() {
-        udpClinet = new UDPNetClient(Host, udpPort);
-        //tcpClient = new TCPNetClient(Host, tcpPort);
+        //udpClinet = new UDPNetClient(Host, udpPort);
+        tcpClient = new TCPNetClient(Host, tcpPort);
         message = new MessagHandler();
     }
 

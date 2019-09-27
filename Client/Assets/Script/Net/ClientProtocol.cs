@@ -13,6 +13,9 @@ public class ClientProtocol
 
         _idDic[MsgId_connectRsp] = typeof(CustomProtocol.PlayerConnectRsp);
         _typeDic[typeof(CustomProtocol.PlayerConnectRsp)] = MsgId_connectRsp;
+
+        _idDic[MsgId_connect] = typeof(CusNetMesConnected);
+        _typeDic[typeof(CusNetMesConnected)] = MsgId_connect;
     }
 
 
@@ -42,7 +45,12 @@ public class ClientProtocol
     //连接
     public const UInt16 MsgId_connectReq = 1;
     public const UInt16 MsgId_connectRsp = 2;
+    public const UInt16 MsgId_connect = 3;
 
 
+}
+
+
+public class CusNetMesConnected {
 
 }

@@ -22,5 +22,6 @@ public class TCPNetClient : NetClient {
 
     protected override void Connect() {
         base.Connect();
+        Debug.Log("tcp connect");
     }
 }

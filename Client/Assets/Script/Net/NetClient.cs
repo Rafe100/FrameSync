@@ -78,15 +78,22 @@ public class NetClient : IDisposable
     }
 
     protected virtual void Connect() {
-        InitTransporter();
-        this.socket.Connect(endPoint);
-        isConnected = true;
+        try {
+            InitTransporter();
+            this.socket.Connect(endPoint);
+            isConnected = true;
+            var connecMsg = new ReceiveData(ClientProtocol.MsgId_connect, new CusNetMesConnected());
+            NetWorkMessageEnqueue(connecMsg);
+        } catch(Exception e) {
+            Debug.Log("connect exception:" + e.ToString());
+        }
     }
 
     public virtual void Dispose() {
         this.socket.Shutdown(SocketShutdown.Both);
         this.socket.Close();
         this.socket = null;
+        Debug.Log("socket is close");
     }
 
 }
