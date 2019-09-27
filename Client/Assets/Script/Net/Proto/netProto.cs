@@ -32,12 +32,81 @@ namespace CustomProtocol
   {
     public PlayerConnectRsp() {}
     
-    private string _playId;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"playId", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public string playId
+    private int _playId;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"playId", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int playId
     {
       get { return _playId; }
       set { _playId = value; }
+    }
+    private int _udpPort;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"udpPort", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int udpPort
+    {
+      get { return _udpPort; }
+      set { _udpPort = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Vec3")]
+  public partial class Vec3 : global::ProtoBuf.IExtensible
+  {
+    public Vec3() {}
+    
+    private int _x;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"x", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int x
+    {
+      get { return _x; }
+      set { _x = value; }
+    }
+    private int _y;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"y", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int y
+    {
+      get { return _y; }
+      set { _y = value; }
+    }
+    private int _z;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"z", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int z
+    {
+      get { return _z; }
+      set { _z = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"PlayerFrame")]
+  public partial class PlayerFrame : global::ProtoBuf.IExtensible
+  {
+    public PlayerFrame() {}
+    
+    private int _Tick;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"Tick", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int Tick
+    {
+      get { return _Tick; }
+      set { _Tick = value; }
+    }
+    private CustomProtocol.Vec3 _Pos;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"Pos", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public CustomProtocol.Vec3 Pos
+    {
+      get { return _Pos; }
+      set { _Pos = value; }
+    }
+    private int _PlayerId;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"PlayerId", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int PlayerId
+    {
+      get { return _PlayerId; }
+      set { _PlayerId = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)

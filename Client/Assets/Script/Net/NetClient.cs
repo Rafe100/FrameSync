@@ -10,9 +10,6 @@ public class NetClient : IDisposable
 {
     public const Int32 MAX_PACKAGE_LENGTH = 1024 * 64 * 4;
     public bool isConnected;
-    public ClientProtocol cProto {
-        get { return clientProto; }
-    }
     protected string host;
     protected int port;
     protected Socket socket;
@@ -20,14 +17,12 @@ public class NetClient : IDisposable
     protected Thread thread;
     protected byte[] buffer;
     protected Transporter transporter;
-    ClientProtocol clientProto;
     Queue<System.Object> revQueue = new Queue<object>(29);
 
    
 
     public NetClient()
     {
-        clientProto = new ClientProtocol();
         buffer = new byte[MAX_PACKAGE_LENGTH];
     }
 
@@ -56,11 +51,9 @@ public class NetClient : IDisposable
     }
 
 
-    void Adress()
-    {
+    protected virtual void Adress() {
         IPAddress address;
-        if (!IPAddress.TryParse(this.host, out address))
-        {
+        if (!IPAddress.TryParse(this.host, out address)) {
             IPHostEntry hostEntry = Dns.GetHostEntry(this.host);
             IPAddress[] ipAddrs = hostEntry.AddressList;
             address = ipAddrs[0];
@@ -80,13 +73,21 @@ public class NetClient : IDisposable
     protected virtual void Connect() {
         try {
             InitTransporter();
-            this.socket.Connect(endPoint);
-            isConnected = true;
-            var connecMsg = new ReceiveData(ClientProtocol.MsgId_connect, new CusNetMesConnected());
-            NetWorkMessageEnqueue(connecMsg);
         } catch(Exception e) {
             Debug.Log("connect exception:" + e.ToString());
         }
+    }
+
+    public void Send(object obj) {
+        if(transporter == null) {
+            Debug.Log("the netClient transporter is null");
+            return;
+        }
+        this.transporter.Send(obj);
+    }
+
+    public virtual int SendTo(ArraySegment<byte> segment) {
+        return 0;
     }
 
     public virtual void Dispose() {
@@ -96,4 +97,8 @@ public class NetClient : IDisposable
         Debug.Log("socket is close");
     }
 
+
+    public virtual void StartRev() {
+
+    }
 }

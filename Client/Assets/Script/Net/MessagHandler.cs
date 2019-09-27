@@ -15,9 +15,26 @@ public class MessagHandler
         handlers[key] += callBack;
     }
 
+    public void RegistOnce(int key, Action<ReceiveData> callBack) {
+        if (!onceHandlers.ContainsKey(key)) {
+            onceHandlers.Add(key, null);
+        }
+        onceHandlers[key] += callBack;
+    }
+
     public void Dispatch(ReceiveData rev) {
         if (handlers.ContainsKey(rev.MsgId)) {
-            handlers[rev.MsgId](rev);
+            var handler = handlers[rev.MsgId];
+            if (handler != null) {
+                handler(rev);
+            }
+        }
+        if (onceHandlers.ContainsKey(rev.MsgId)) {
+            var handler = onceHandlers[rev.MsgId];
+            if (handler != null) {
+                handler(rev);
+                onceHandlers[rev.MsgId] = null;
+            }
         }
     }
 

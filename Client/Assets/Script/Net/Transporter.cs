@@ -3,11 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 
-public class Transporter : MonoBehaviour
+public class Transporter
 {
 
     public const Int32 MAX_PACKAGE_LENGTH = 1024 * 64 * 4;
@@ -20,7 +21,7 @@ public class Transporter : MonoBehaviour
     Thread revThread;
     BufferCache revCache;
 
-    private Transporter() {
+    public Transporter() {
 
     }
 
@@ -30,19 +31,24 @@ public class Transporter : MonoBehaviour
         binaryWriter = new BinaryWriter(memoryStream);
         revCache = new BufferCache(MAX_PACKAGE_LENGTH);
         if (nc == null || netSocket == null) {
-            Debug.LogError("netclient or socket is null");
+            Debug.Log("netclient or socket is null");
             return;
         }
         this.nClient = nc;
         this.socket = netSocket;
     }
 
-    public void StartRev() {
-        revThread = new Thread(new ThreadStart(Rev));
+    public void TCPStartRev() {
+        revThread = new Thread(new ThreadStart(RevTCP));
         revThread.Start();
     }
 
-    void Rev() {
+    public void UDPStartRev() {
+        revThread = new Thread(new ThreadStart(RevUDP));
+        revThread.Start();
+    }
+
+    void RevTCP() {
         while (true) {
             
             int len = this.socket.Receive(buffer,0,buffer.Length, SocketFlags.None);
@@ -51,6 +57,29 @@ public class Transporter : MonoBehaviour
                 ReceiveData rd;
                 do {
                     rd = Decode(revCache, len);
+                    if(rd != null) {
+                        this.nClient.NetWorkMessageEnqueue(rd);
+                    }
+                } while (rd != null);
+
+            } else {
+                string v = "the len is zero";
+            }
+        }
+    }
+
+    void RevUDP() {
+        while (true) {
+            EndPoint remoteEp = null;
+            int len = this.socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None,ref remoteEp);
+            if (len > 0) {
+                revCache.Write(buffer, len);
+                ReceiveData rd;
+                do {
+                    rd = Decode(revCache, len);
+                    if (rd != null) {
+                        this.nClient.NetWorkMessageEnqueue(rd);
+                    }
                 } while (rd != null);
 
             } else {
@@ -71,7 +100,7 @@ public class Transporter : MonoBehaviour
         }
         UInt16 typeId = cache.ReadUInt16();
         Debug.Log("decode typeId:" + typeId);
-        Type packageType = this.nClient.cProto.GetTypeById(typeId);
+        Type packageType = ClientProtocol.GetTypeById(typeId);
         if (packageType == null) {
             Debug.Log("Transporter receive package can not find id" + typeId);
             return null;
@@ -95,6 +124,24 @@ public class Transporter : MonoBehaviour
     }
 
 
+    public bool Send(object msg) {
+        try {
+            UInt16 id;
+            ArraySegment<byte> sendArraySegment = Encode(msg, out id);
+            SendStateObject sendState = new SendStateObject();
+            sendState.StateSocket = this.socket;
+            sendState.Size = sendArraySegment.Count;
+            sendState.Id = id;
+            //int t = this.socket.Send(sendArraySegment.Array, sendArraySegment.Offset, sendArraySegment.Count, SocketFlags.None);
+            int t = this.nClient.SendTo(sendArraySegment);
+            return true;
+        } catch (Exception e) {
+            Debug.Log("transporter send exception :" + e.ToString());
+            return false;
+        }
+    }
+
+
     /// <summary>
     /// 2byte - message length
     /// 2byte - message type
@@ -110,7 +157,7 @@ public class Transporter : MonoBehaviour
         memoryStream.Seek(0, SeekOrigin.Begin);
         binaryWriter.Seek(0, SeekOrigin.Begin);
         binaryWriter.Write(UInt16.MinValue);
-        UInt16 msgId = this.nClient.cProto.GetIdByType(msg.GetType());
+        UInt16 msgId = ClientProtocol.GetIdByType(msg.GetType());
         id = msgId;
         binaryWriter.Write(msgId);
         Debug.Log("encode msgId:" + memoryStream.Position);
@@ -145,4 +192,10 @@ public class ReceiveData {
         MsgId = id;
         MsgObject = obj;
     }
+}
+
+class SendStateObject {
+    public Socket StateSocket;
+    public int Size;
+    public UInt16 Id;
 }

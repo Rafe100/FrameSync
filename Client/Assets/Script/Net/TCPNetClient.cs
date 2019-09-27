@@ -22,6 +22,20 @@ public class TCPNetClient : NetClient {
 
     protected override void Connect() {
         base.Connect();
+        this.socket.Connect(endPoint);
+        isConnected = true;
+        StartRev();
+        var connecMsg = new ReceiveData(ClientProtocol.MsgId_connect, new CusNetMesConnected());
+        NetWorkMessageEnqueue(connecMsg);
         Debug.Log("tcp connect");
     }
+
+    public override void StartRev() {
+        this.transporter.TCPStartRev();
+    }
+
+    public override int SendTo(ArraySegment<byte> sendArraySegment) {
+        return this.socket.Send(sendArraySegment.Array, sendArraySegment.Offset, sendArraySegment.Count, SocketFlags.None);
+    }
+
 }
