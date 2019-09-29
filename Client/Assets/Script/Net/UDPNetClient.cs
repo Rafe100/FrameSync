@@ -59,7 +59,10 @@ public class UDPNetClient : NetClient
         return this.socket.SendTo(sendArraySegment.Array, sendArraySegment.Offset,sendArraySegment.Count, SocketFlags.None, this.remoteEndPoint);
     }
 
-
+    public override void Dispose() {
+        base.Dispose();
+        Debug.Log("udp socket is close");
+    }
 
 
 }

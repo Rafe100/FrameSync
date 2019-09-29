@@ -18,7 +18,7 @@ public class GameManager : SingleInstance<GameManager> {
     void ConnectTcp(ReceiveData rev) {
         var revData = rev.MsgObject as CustomProtocol.PlayerConnectRsp;
         playerId = revData.playId;
-        Debug.Log("ConnectTcp:" + playerId + "udpPort:" + revData.udpPort);
+        Debug.Log("the server playerid :" + playerId + "udpPort:" + revData.udpPort);
         NetWorkManager.Instance.CloseTcp();
         NetWorkManager.Instance.InitUdp(revData.udpPort);
         //test

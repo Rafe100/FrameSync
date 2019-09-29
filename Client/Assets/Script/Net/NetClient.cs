@@ -91,10 +91,11 @@ public class NetClient : IDisposable
     }
 
     public virtual void Dispose() {
-        this.socket.Shutdown(SocketShutdown.Both);
-        this.socket.Close();
+        this.socket?.Shutdown(SocketShutdown.Both);
+        this.socket?.Close();
         this.socket = null;
-        Debug.Log("socket is close");
+        this.transporter?.Dispose();
+        this.transporter = null;
     }
 
 

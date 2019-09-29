@@ -7,9 +7,9 @@ console.log("program start");
 
 var server = net.createServer(function (socket) {
 
-    console.log('a new connection ');
+    console.log(' server accept a new connection ');
     var rsp = new customProto.PlayerConnectRsp();
-    rsp.setPlayid(1);
+    rsp.setPlayid(1001);
     rsp.setUdpport(3003);
     var b = rsp.serializeBinary();
     var headBuffer = Buffer.alloc(8);

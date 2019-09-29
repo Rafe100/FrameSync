@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using UnityEngine;
 
-public class Transporter
-{
-
+public class Transporter: IDisposable {
+    const int PROTO_HEAD_LENGTH = 2;
+    const int PROTO_HEAD_MSGtYPE = 2;
+    const int PROTO_HEAD_SYMBOL = 4;
     public const Int32 MAX_PACKAGE_LENGTH = 1024 * 64 * 4;
 
     NetClient nClient;
@@ -18,10 +20,11 @@ public class Transporter
     BinaryWriter binaryWriter;
     byte[] buffer;
     Socket socket;
-    Thread revThread;
+    Thread tcpRevThread;
+    Thread udpRevThread;
     BufferCache revCache;
 
-    public Transporter() {
+    Transporter() {
 
     }
 
@@ -39,86 +42,103 @@ public class Transporter
     }
 
     public void TCPStartRev() {
-        revThread = new Thread(new ThreadStart(RevTCP));
-        revThread.Start();
+        tcpRevThread = new Thread(new ThreadStart(RevTCP));
+        tcpRevThread.Start();
     }
 
     public void UDPStartRev() {
-        revThread = new Thread(new ThreadStart(RevUDP));
-        revThread.Start();
+        udpRevThread = new Thread(new ThreadStart(RevUDP));
+        udpRevThread.Start();
     }
 
     void RevTCP() {
         while (true) {
-            
-            int len = this.socket.Receive(buffer,0,buffer.Length, SocketFlags.None);
-            if(len > 0) {
-                revCache.Write(buffer, len);
-                ReceiveData rd;
-                do {
-                    rd = Decode(revCache, len);
-                    if(rd != null) {
-                        this.nClient.NetWorkMessageEnqueue(rd);
-                    }
-                } while (rd != null);
-
-            } else {
-                string v = "the len is zero";
+            try {
+                int len = this.socket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+                Debug.Log("revTcp len" + len + "revCache read:" + revCache.ReadPtr + "revCache WritePtr:" + revCache.WritePtr);
+                if (len > 0) {
+                    revCache.Write(buffer, len);
+                    ReceiveData rd;
+                    do {
+                        rd = Decode(revCache);
+                        if (rd != null) {
+                            this.nClient.NetWorkMessageEnqueue(rd);
+                        }
+                    } while (rd != null);
+                    revCache.Crunch();
+                } else {
+                    string v = "the len is zero";
+                }
+            }catch(Exception e) {
+                string exp = e.ToString();
+                Debug.Log("rev exception :" + exp);
+                break;
             }
         }
     }
 
     void RevUDP() {
         while (true) {
-            EndPoint remoteEp = null;
-            int len = this.socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None,ref remoteEp);
-            if (len > 0) {
-                revCache.Write(buffer, len);
-                ReceiveData rd;
-                do {
-                    rd = Decode(revCache, len);
-                    if (rd != null) {
-                        this.nClient.NetWorkMessageEnqueue(rd);
-                    }
-                } while (rd != null);
-
-            } else {
-                string v = "the len is zero";
-            }
+            try {
+                EndPoint remoteEp = new IPEndPoint(IPAddress.Any, 100);
+                int len = this.socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref remoteEp);
+                Debug.Log("revUdp len" + len);
+                if (len > 0) {
+                    revCache.Write(buffer, len);
+                    ReceiveData rd;
+                    do {
+                        rd = Decode(revCache);
+                        if (rd != null) {
+                            this.nClient.NetWorkMessageEnqueue(rd);
+                        }
+                    } while (rd != null);
+                    revCache.Crunch();
+                } else {
+                    string v = "the len is zero";
+                }
+            }catch (Exception e) {
+            string exp = e.ToString();
+            Debug.Log("rev exception :" + exp);
+            break;
         }
     }
+    }
 
-    public ReceiveData Decode(BufferCache cache, Int32 revLength) {
+    public ReceiveData Decode(BufferCache cache) {
 
-        if (revLength < sizeof(Int16) * 2)
+        if (cache.Length < sizeof(Int16) * 2)
             return null;
+        int startPtr = cache.ReadPtr;
         int packageLength = cache.ReadUInt16();
-        Debug.Log("decode pck length:" + packageLength);
+#if net_log
+        Debug.Log("decode read first 2 byte packageLength:" + packageLength);
+#endif
         if (packageLength > Transporter.MAX_PACKAGE_LENGTH) {
             Debug.Log("Transporter receive package length over max length :" + packageLength);
+            cache.ReadPtr = startPtr;
+            return null;
+        }
+        if(cache.Length < packageLength) {
+            Debug.Log("decode packageLenght over cache length packageLength:" + packageLength + "cache.Length:" + cache.Length);
+            cache.ReadPtr = startPtr;
             return null;
         }
         UInt16 typeId = cache.ReadUInt16();
+#if net_log
         Debug.Log("decode typeId:" + typeId);
+#endif
         Type packageType = ClientProtocol.GetTypeById(typeId);
         if (packageType == null) {
             Debug.Log("Transporter receive package can not find id" + typeId);
             return null;
         }
         int packageBodyLength = packageLength - 2 - 4;
+        cache.ReadUInt16();
+        cache.ReadUInt16();
         ReceiveData data = new ReceiveData();
         data.MsgId = typeId;
-
         data.MsgObject = Activator.CreateInstance(packageType);
         MemoryStream mStream = cache.GetMemoryStream(packageBodyLength);
-        //#if UNITY_IPHONE && !UNITY_EDITOR
-        //ProtobufSerializer serializer = new ProtobufSerializer();
-        //serializer.Deserialize(rCache.GetStream(pakBodyLength), ccMsg, pakType);
-
-        //#else
-        //RuntimeTypeModel.Default.Deserialize(rCache.GetStream(pakBodyLength), ccMsg, pakType);
-        //#endif
-
         RuntimeTypeModel.Default.Deserialize(mStream, data.MsgObject, packageType);
         return data;
     }
@@ -132,7 +152,6 @@ public class Transporter
             sendState.StateSocket = this.socket;
             sendState.Size = sendArraySegment.Count;
             sendState.Id = id;
-            //int t = this.socket.Send(sendArraySegment.Array, sendArraySegment.Offset, sendArraySegment.Count, SocketFlags.None);
             int t = this.nClient.SendTo(sendArraySegment);
             return true;
         } catch (Exception e) {
@@ -158,13 +177,16 @@ public class Transporter
         binaryWriter.Seek(0, SeekOrigin.Begin);
         binaryWriter.Write(UInt16.MinValue);
         UInt16 msgId = ClientProtocol.GetIdByType(msg.GetType());
+#if net_log
+        Debug.Log("encode id is :" + msgId);
+#endif
         id = msgId;
         binaryWriter.Write(msgId);
-        Debug.Log("encode msgId:" + memoryStream.Position);
         binaryWriter.Write(UInt32.MinValue);
-        Debug.Log("encode + 4:" + memoryStream.Position);
         RuntimeTypeModel.Default.Serialize(memoryStream, msg);
-        Debug.Log("encode :" + memoryStream.Position);
+#if net_log
+        Debug.Log("encode after Serialize:" + memoryStream.Position);
+#endif
         int totalLength = (int)memoryStream.Position;
         UInt16 length = (UInt16)(memoryStream.Position - 2);
         binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -175,8 +197,13 @@ public class Transporter
         return encodeResult;
     }
 
+    public void Dispose() {
+        tcpRevThread?.Abort();
+        udpRevThread?.Abort();
+        tcpRevThread = null;
+        udpRevThread = null;
+    }
 
-  
 
 
 }

@@ -25,7 +25,7 @@ public class test : MonoBehaviour
         var seg = r.Encode(obj,out t);
         var c = new BufferCache();
         c.Write(seg.Array, seg.Array.Length);
-        var y = r.Decode(c, seg.Array.Length);
+        var y = r.Decode(c);
         Debug.Log("id:" + y.MsgId);
         var result = y.MsgObject as PlayerConnectRsp;
         Debug.Log("playId:" + result.playId + " "+ result.udpPort);

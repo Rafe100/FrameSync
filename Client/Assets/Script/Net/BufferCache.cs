@@ -8,6 +8,7 @@ public class BufferCache {
 
     public int ReadPtr {
         get { return this.readPtr; }
+        set { this.readPtr = value; }
     }
     public int WritePtr {
         get { return this.writePtr; }
@@ -34,7 +35,9 @@ public class BufferCache {
     }
 
     public int Length {
-        get { return this.writePtr - this.readPtr; }
+        get {
+            return this.writePtr - this.readPtr;
+        }
     }
 
     public int Space {
@@ -49,6 +52,10 @@ public class BufferCache {
         Array.Copy(data, 0, buffer, writePtr, dataLength);
         writePtr += dataLength;
         return dataLength;
+    }
+
+    public void LogPtr() {
+        Extension.Lg("Buffer Cache readPtr:" + readPtr + "  wirtePtr:" + WritePtr);
     }
 
     public UInt16 ReadUInt16NotAddPtr() {
@@ -74,6 +81,21 @@ public class BufferCache {
         t = t2 * 256 * 256 + t1 * 256 + t0;
         return t;
     }
+
+    public void Crunch() {
+        if(this.readPtr == 0) {
+            return;
+        }
+        if(readPtr == writePtr) {
+            this.readPtr = 0;
+            this.writePtr = 0;
+        } else {
+            Array.Copy(this.buffer, readPtr, buffer, 0, writePtr - readPtr);
+            writePtr = writePtr - readPtr;
+            readPtr = 0;
+        }
+    }
+
 
     public void Clear() {
         this.writePtr = 0;

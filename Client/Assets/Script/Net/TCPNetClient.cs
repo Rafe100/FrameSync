@@ -38,4 +38,10 @@ public class TCPNetClient : NetClient {
         return this.socket.Send(sendArraySegment.Array, sendArraySegment.Offset, sendArraySegment.Count, SocketFlags.None);
     }
 
+
+    public override void Dispose() {
+        base.Dispose();
+        Debug.Log("tcp socket is close");
+    }
+
 }

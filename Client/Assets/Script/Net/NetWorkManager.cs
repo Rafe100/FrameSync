@@ -6,7 +6,7 @@ using UnityEngine;
 public class NetWorkManager : SingleInstance<NetWorkManager> {
     public const string Host = "127.0.0.1";
     public int tcpPort = 3001;
-    public int udpPort = 3002;
+    public int udpPort = 3004;
     public const int removeUdpPort = 3003;
     MessagHandler message;
     NetClient tcpClient;
@@ -26,14 +26,14 @@ public class NetWorkManager : SingleInstance<NetWorkManager> {
         if (tcpClient != null) {
             ReceiveData revData = tcpClient.NetWorkMessageDequeue();
             if (revData != null) {
-                Debug.Log("tcp接收到消息" + revData.MsgId);
+                Debug.Log("tcp接收到消息" + revData.MsgId + " " + revData.MsgObject.GetType().ToString());
                 message.Dispatch(revData);
             }
         }
         if (udpClinet != null) {
             ReceiveData revData = udpClinet.NetWorkMessageDequeue();
             if (revData != null) {
-                Debug.Log("udp接收到消息" + revData.MsgId);
+                Debug.Log("udp接收到消息" + revData.MsgId + " " + revData.MsgObject.GetType().ToString());
                 message.Dispatch(revData);
             }
         }
@@ -46,6 +46,7 @@ public class NetWorkManager : SingleInstance<NetWorkManager> {
 
     public void InitUdp(int rUdpP = removeUdpPort, string udpH = Host) {
         udpClinet = new UDPNetClient(Host, udpPort, Host, rUdpP);
+        udpClinet?.Start();
     }
 
 
