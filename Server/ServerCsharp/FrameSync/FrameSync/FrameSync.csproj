@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{15AC29B6-D74F-4F33-BECE-0DDCAF8A9565}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FrameSync</RootNamespace>
+    <AssemblyName>FrameSync</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ArrayDecorator.cs" />
+    <Compile Include="AttributeMap.cs" />
+    <Compile Include="BasicList.cs" />
+    <Compile Include="BclHelpers.cs" />
+    <Compile Include="BlobSerializer.cs" />
+    <Compile Include="BooleanSerializer.cs" />
+    <Compile Include="BufferCache.cs" />
+    <Compile Include="BufferExtension.cs" />
+    <Compile Include="BufferPool.cs" />
+    <Compile Include="ByteSerializer.cs" />
+    <Compile Include="CallbackAttributes.cs" />
+    <Compile Include="CallbackSet.cs" />
+    <Compile Include="CharSerializer.cs" />
+    <Compile Include="ClientProtocol.cs" />
+    <Compile Include="CompiledSerializer.cs" />
+    <Compile Include="CompilerContext.cs" />
+    <Compile Include="CompilerDelegates.cs" />
+    <Compile Include="DataFormat.cs" />
+    <Compile Include="DateTimeSerializer.cs" />
+    <Compile Include="DecimalSerializer.cs" />
+    <Compile Include="DefaultValueDecorator.cs" />
+    <Compile Include="DoubleSerializer.cs" />
+    <Compile Include="EnumSerializer.cs" />
+    <Compile Include="Extensible.cs" />
+    <Compile Include="ExtensibleUtil.cs" />
+    <Compile Include="FieldDecorator.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="GuidSerializer.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="IExtensible.cs" />
+    <Compile Include="IExtension.cs" />
+    <Compile Include="ImmutableCollectionDecorator.cs" />
+    <Compile Include="ImplicitFields.cs" />
+    <Compile Include="Int16Serializer.cs" />
+    <Compile Include="Int32Serializer.cs" />
+    <Compile Include="Int64Serializer.cs" />
+    <Compile Include="IProtoSerializer.cs" />
+    <Compile Include="IProtoTypeSerializer.cs" />
+    <Compile Include="ISerializerProxy.cs" />
+    <Compile Include="KeyValuePairDecorator.cs" />
+    <Compile Include="KeyValuePairProxy.cs" />
+    <Compile Include="ListDecorator.cs" />
+    <Compile Include="Local.cs" />
+    <Compile Include="MemberSpecifiedDecorator.cs" />
+    <Compile Include="MessagHandler.cs" />
+    <Compile Include="MetaType.cs" />
+    <Compile Include="NetClient.cs" />
+    <Compile Include="NetObjectCache.cs" />
+    <Compile Include="NetObjectSerializer.cs" />
+    <Compile Include="netProto.cs" />
+    <Compile Include="NullDecorator.cs" />
+    <Compile Include="ParseableSerializer.cs" />
+    <Compile Include="PrefixStyle.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyDecorator.cs" />
+    <Compile Include="ProtoBehaviorAttribute.cs" />
+    <Compile Include="ProtoBehaviorExtensionElement.cs" />
+    <Compile Include="ProtoContractAttribute.cs" />
+    <Compile Include="ProtoConverterAttribute.cs" />
+    <Compile Include="ProtoDecoratorBase.cs" />
+    <Compile Include="ProtoEndpointBehavior.cs" />
+    <Compile Include="ProtoEnumAttribute.cs" />
+    <Compile Include="ProtoException.cs" />
+    <Compile Include="ProtoIgnoreAttribute.cs" />
+    <Compile Include="ProtoIncludeAttribute.cs" />
+    <Compile Include="ProtoMemberAttribute.cs" />
+    <Compile Include="ProtoOperationBehavior.cs" />
+    <Compile Include="ProtoReader.cs" />
+    <Compile Include="ProtoWriter.cs" />
+    <Compile Include="RuntimeTypeModel.cs" />
+    <Compile Include="SByteSerializer.cs" />
+    <Compile Include="SerializationContext.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="SingleSerializer.cs" />
+    <Compile Include="StringSerializer.cs" />
+    <Compile Include="SubItemSerializer.cs" />
+    <Compile Include="SubItemToken.cs" />
+    <Compile Include="SubType.cs" />
+    <Compile Include="SurrogateSerializer.cs" />
+    <Compile Include="SystemTypeSerializer.cs" />
+    <Compile Include="TagDecorator.cs" />
+    <Compile Include="TCPNetClient.cs" />
+    <Compile Include="TimeSpanSerializer.cs" />
+    <Compile Include="Transporter.cs" />
+    <Compile Include="TupleSerializer.cs" />
+    <Compile Include="TypeFormatEventArgs.cs" />
+    <Compile Include="TypeModel.cs" />
+    <Compile Include="TypeSerializer.cs" />
+    <Compile Include="UDPNetClient.cs" />
+    <Compile Include="UInt16Serializer.cs" />
+    <Compile Include="UInt32Serializer.cs" />
+    <Compile Include="UInt64Serializer.cs" />
+    <Compile Include="UriDecorator.cs" />
+    <Compile Include="ValueMember.cs" />
+    <Compile Include="WireType.cs" />
+    <Compile Include="XmlProtoSerializer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
