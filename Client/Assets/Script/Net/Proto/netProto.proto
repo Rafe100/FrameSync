@@ -1,16 +1,16 @@
 syntax = "proto2";
 package CustomProtocol;
 
-message PlayerConnectReq
-{
-    required string playName= 1;
+
+message PlayerInfo{
+	required int32 playId= 1;
 }
 
-
-message PlayerConnectRsp
-{
- 	required int32 playId= 1;
-	required int32 udpPort= 2;
+message GameStart{
+	required int32 serverTick= 1;
+	required int32 playId= 2;
+	required int32 udpPort= 3;
+	repeated PlayerInfo playerList=4;
 }
 
 message Vec3
@@ -25,4 +25,8 @@ message PlayerFrame
 	required int32 Tick = 1;
 	required Vec3 Pos = 2;
 	required int32 PlayerId = 3;
+}
+
+enum MSG{
+	Msgid_GameStart = 1;
 }

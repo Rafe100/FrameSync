@@ -9,13 +9,19 @@ namespace FrameSync {
         static void Main(string[] args) {
 
             var server = new Server();
+            server.RegisterOnce(ClientProtocol.MsgId_connect, server.ConnectTcp);
+            server.InitTcp();
 
             while (true) {
+
+                server.Update();
 
             }
 
 
 
         }
+
+    
     }
 }

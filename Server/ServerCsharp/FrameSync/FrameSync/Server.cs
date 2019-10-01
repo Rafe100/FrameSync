@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,13 +15,15 @@ namespace FrameSync {
         MessagHandler message;
         NetClient tcpClient;
         NetClient udpClinet;
+        TcpListener tcpListen;
+        int playerId = 1000;
 
         public Server() {
             message = new MessagHandler();
         }
 
 
-        private void Update() {
+        public void Update() {
             if (tcpClient != null) {
                 ReceiveData revData = tcpClient.NetWorkMessageDequeue();
                 if (revData != null) {
@@ -83,6 +86,20 @@ namespace FrameSync {
         }
 
 
+
+        public void ConnectTcp(ReceiveData rev) {
+            Console.Write("a new connection");
+            var rsp = new  CustomProtocol.PlayerConnectRsp();
+            rsp.playId = this.playerId;
+            this.playerId++;
+            Debug.Log("the server playerid :" + playerId + "udpPort:" + revData.udpPort);
+            NetWorkManager.Instance.CloseTcp();
+            NetWorkManager.Instance.InitUdp(revData.udpPort);
+            //test
+            var o = new CustomProtocol.PlayerConnectRsp();
+            o.playId = playerId + 1;
+            NetWorkManager.Instance.SendUDP(o);
+        }
 
     }
 }

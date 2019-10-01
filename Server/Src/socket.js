@@ -5,52 +5,67 @@ var dgram = require('dgram');
 var udpSocket = dgram.createSocket('udp4');
 console.log("program start");
 
+var playerId = 1000;
+var updPort = 3003;
+var allPlayer = new Array();
+
 var server = net.createServer(function (socket) {
 
-    console.log(' server accept a new connection ');
+    console.log('tcpSocket server accept a new connection ');
     var rsp = new customProto.PlayerConnectRsp();
-    rsp.setPlayid(1001);
-    rsp.setUdpport(3003);
-    var b = rsp.serializeBinary();
-    var headBuffer = Buffer.alloc(8);
-    headBuffer.writeInt16LE(b.length + 6);
-    var rspId = 2;
-    headBuffer.writeUInt16LE(rspId, 2);
-    headBuffer.writeInt32LE(0, 4);
-    var sendBuffer = Buffer.concat([headBuffer, b], headBuffer.length + b.length);
-    console.log('rsp length:' + b.length);
-    //send to client
+    rsp.setPlayid(playerId);
+    rsp.setUdpport(updPort);
+    allPlayer[playerId] = socket;
+    playerId++;
+    var sendBuffer = encode(rsp,2);
     socket.write(sendBuffer);
-    console.log('tcp send connection rsp');
-
     socket.on('connection', function (data) {
-        console.log('connection event');
+        console.log('tcpSocket connection event');
        
     });
 
-    socket.on('data', function (data) {
-        var dataBuffer = Buffer.from(data);
-        console.log("a data coming ");
-        console.log("total data length:" + data.length);
-        var i = 0;
-        var length = data.readInt16LE(i);
-        i++;
-        i++;
-        //message type 
-        var t = dataBuffer.readUInt16LE(i);
-        console.log('a data [Length]' + length + "[type]" + t);
-
+    socket.on('data', function (data) { 
+        console.log("tcpSocket a data coming ");
     });
 
     socket.on('error', function (data) {
-        console.log('a error ....');
+        console.log('tcpSocket a error');
     });
 
     socket.on('close', function (data) {
-        console.log('a close ....');
+        console.log('tcpSocket a close');
     });
 
 });
+
+function encode(req,id) {
+    var b = req.serializeBinary();
+    var headBuffer = Buffer.alloc(8);
+    headBuffer.writeInt16LE(b.length + 6);
+    id = 2;
+    headBuffer.writeUInt16LE(id, 2);
+    headBuffer.writeInt32LE(0, 4);
+    var sendBuffer = Buffer.concat([headBuffer, b], headBuffer.length + b.length);
+    console.log('encode msg :' + typeof (req));
+    return sendBuffer;
+}
+
+function decode(data) {
+    var dataBuffer = Buffer.from(data);
+    var i = 0;
+    var length = data.readInt16LE(i);
+    i++;
+    i++;
+    //message type 
+    var t = dataBuffer.readUInt16LE(i);
+    console.log('decode the data [Length]' + length + "[type]" + t);
+    var encodeBuffer = data.slice(8, length - 6 + 8);
+    console.log("deserialize length :" + encodeBuffer.length + typeof (encodeBuffer));
+    var u8array = new Uint8Array(encodeBuffer);
+    var ack = customProto.PlayerConnectRsp.deserializeBinary(u8array);
+    return { id: t, obj: ack };
+}
+
 
 server.listen(3001);
 /* udp */
@@ -71,25 +86,15 @@ udpSocket.on('listening', () => {
 });
 
 udpSocket.on('message', (data, rinfo) => {
-    console.log(`receive message from ${rinfo.address}:${rinfo.port}`);
-    var dataBuffer = Buffer.from(data);
-    console.log("a data coming ");
-    console.log("total data length:" + data.length);
-    var i = 0;
-    var length = data.readInt16LE(i);
-    i++;
-    i++;
-    //message type 
-    var t = dataBuffer.readUInt16LE(i);
-    console.log('a data [Length]' + length + "[type]" + t);
-    if (t == 2) {
-        var encodeBuffer = data.slice(8, length - 6 + 8);
-        console.log("deserialize length :" + encodeBuffer.length + typeof (encodeBuffer));
-        var u8array = new Uint8Array(encodeBuffer);
-        var ack = customProto.PlayerConnectRsp.deserializeBinary(u8array);
-        console.log("the Playid :" + ack.getPlayid());
-        console.log("udp port :" + ack.getUdpport());
+    console.log(`udpSocket receive message from ${rinfo.address}:${rinfo.port}`);
+    var ack = decode(data);
+    if (ack.id == 2) {
+        console.log("the Playid :" + ack.obj.getPlayid());
+        console.log("udp port :" + ack.obj.getUdpport());
     }
+
+
+
 });
 
 udpSocket.bind('3003');
