@@ -12,16 +12,22 @@ var allPlayer = new Array();
 var server = net.createServer(function (socket) {
 
     console.log('tcpSocket server accept a new connection ');
-    var rsp = new customProto.PlayerConnectRsp();
+    allPlayer[playerId] = socket;
+    var rsp = new customProto.GameStart();
     rsp.setPlayid(playerId);
     rsp.setUdpport(updPort);
-    allPlayer[playerId] = socket;
+    var all = new Array();
+    for (var x in allPlayer) {
+        var p = new customProto.PlayerInfo();
+        p.setPlayid(x);
+        all.push(p);
+    }
+    rsp.setPlayerlistList(all);
     playerId++;
-    var sendBuffer = encode(rsp,2);
+    var sendBuffer = encode(rsp, customProto.MSG.MSGID_GAMESTART);
     socket.write(sendBuffer);
     socket.on('connection', function (data) {
         console.log('tcpSocket connection event');
-       
     });
 
     socket.on('data', function (data) { 
@@ -34,6 +40,11 @@ var server = net.createServer(function (socket) {
 
     socket.on('close', function (data) {
         console.log('tcpSocket a close');
+        for (var x in allPlayer) {
+            if (allPlayer[x] === socket) {
+                delete allPlayer[x];
+            }
+        }
     });
 
 });
@@ -42,7 +53,6 @@ function encode(req,id) {
     var b = req.serializeBinary();
     var headBuffer = Buffer.alloc(8);
     headBuffer.writeInt16LE(b.length + 6);
-    id = 2;
     headBuffer.writeUInt16LE(id, 2);
     headBuffer.writeInt32LE(0, 4);
     var sendBuffer = Buffer.concat([headBuffer, b], headBuffer.length + b.length);

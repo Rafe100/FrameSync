@@ -18,7 +18,7 @@ public class test : MonoBehaviour
         //Quaternion
 
         var r = new Transporter(null,null);
-        var obj = new CustomProtocol.PlayerConnectRsp();
+        var obj = new CustomProtocol.GameStart();
         obj.playId = 1001;
         obj.udpPort = 3001;
         ushort t = 0;
@@ -27,7 +27,7 @@ public class test : MonoBehaviour
         c.Write(seg.Array, seg.Array.Length);
         var y = r.Decode(c);
         Debug.Log("id:" + y.MsgId);
-        var result = y.MsgObject as PlayerConnectRsp;
+        var result = y.MsgObject as GameStart;
         Debug.Log("playId:" + result.playId + " "+ result.udpPort);
     }
 

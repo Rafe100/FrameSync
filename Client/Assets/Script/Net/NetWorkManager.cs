@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomProtocol;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -49,9 +50,16 @@ public class NetWorkManager : SingleInstance<NetWorkManager> {
         udpClinet?.Start();
     }
 
+    public void Register(MSG keyEnum, Action<ReceiveData> callBack) {
+        this.message.Regist((int)keyEnum, callBack);
+    }
 
     public void Register(int key,Action<ReceiveData> callBack) {
         this.message.Regist(key, callBack);
+    }
+
+    public void RegisterOnce(MSG keyEnum, Action<ReceiveData> callBack) {
+        this.message.RegistOnce((int)keyEnum, callBack);
     }
 
     public void RegisterOnce(int key, Action<ReceiveData> callBack) {

@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
 public static class ClientProtocol
 {
 
     static ClientProtocol()
     {
-        _idDic[MsgId_connectReq] = typeof(CustomProtocol.PlayerConnectReq);
-        _typeDic[typeof(CustomProtocol.PlayerConnectReq)] = MsgId_connectReq;
-
-        _idDic[MsgId_connectRsp] = typeof(CustomProtocol.PlayerConnectRsp);
-        _typeDic[typeof(CustomProtocol.PlayerConnectRsp)] = MsgId_connectRsp;
+        _idDic[(int)CustomProtocol.MSG.Msgid_GameStart] = typeof(CustomProtocol.GameStart);
+        _typeDic[typeof(CustomProtocol.GameStart)] = (int)CustomProtocol.MSG.Msgid_GameStart;
 
         _idDic[MsgId_connect] = typeof(CusNetMesConnected);
         _typeDic[typeof(CusNetMesConnected)] = MsgId_connect;
@@ -43,8 +39,6 @@ public static class ClientProtocol
     /// </summary>
     
     //连接
-    public const UInt16 MsgId_connectReq = 1;
-    public const UInt16 MsgId_connectRsp = 2;
     public const UInt16 MsgId_connect = 3;
 
 

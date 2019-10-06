@@ -5,9 +5,9 @@ using UnityEngine;
 public class FSTransform : MonoBehaviour
 {
 
-    FSVector3 pos;
+    public FSVector3 pos;
     public FSTransform() {
-
+        pos = new FSVector3();
     }
 
 

@@ -8,6 +8,7 @@ public class SingleInstance<T>  : MonoBehaviour where T : MonoBehaviour {
     public static T Instance {
         get {
             if (instance == null) {
+                Debug.Log("the instance is null :" + instance.gameObject.name);
                 var obj = new GameObject(typeof(T).FullName);
                 instance = obj.AddComponent<T>();
 
