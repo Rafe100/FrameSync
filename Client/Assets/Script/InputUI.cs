@@ -11,10 +11,17 @@ public class InputUI : MonoBehaviour
     public ButtonEvent LeftBtn;
     public ButtonEvent RightBtn;
 
-    public static bool isUp;
-    public static bool isDown;
-    public static bool isLeft;
-    public static bool isRight;
+    public static bool isActive;
+
+    public  bool isUp;
+    public  bool isDown;
+    public  bool isLeft;
+    public  bool isRight;
+
+     bool _isUp;
+     bool _isDown;
+     bool _isLeft;
+     bool _isRight;
 
     private void Awake() {
         UpBtn.BtnAction = Up;
@@ -23,21 +30,48 @@ public class InputUI : MonoBehaviour
         RightBtn.BtnAction = Right;
     }
 
+    public void Reset() {
+        isActive = true;
+        isUp = _isUp;
+        isDown = _isDown;
+        isRight = _isRight;
+        isLeft = _isLeft;
+    }
+
+    public void ResetInput() {
+        isUp = _isUp;
+        isDown = _isDown;
+        isLeft = _isLeft;
+        isRight = _isRight;
+    }
+
     public void Up(bool isOn) {
-        isUp = isOn;
-        Debug.Log("up is on:" + isOn);
+        _isUp = isOn;
+        if (isActive) {
+            isActive = false;
+            isUp = _isUp;
+        }
     }
     public void Down(bool isOn) {
-        isDown = isOn;
-        Debug.Log("Down is on:" + isOn);
+        _isDown = isOn;
+        if (isActive) {
+            isActive = false;
+            isDown = _isDown;
+        }
     }
     public void Left(bool isOn) {
-        isLeft = isOn;
-        Debug.Log("Left is on:" + isOn);
+        _isLeft = isOn;
+        if (isActive) {
+            isActive = false;
+            isLeft = _isLeft;
+        }
     }
     public void Right(bool isOn) {
-        isRight = isOn;
-        Debug.Log("Right is on:" + isOn);
+        _isRight = isOn;
+        if (isActive) {
+            isActive = false;
+            isRight = _isRight;
+        }
     }
 
     // Start is called before the first frame update

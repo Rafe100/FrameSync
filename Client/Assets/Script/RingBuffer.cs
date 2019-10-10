@@ -6,7 +6,7 @@ using UnityEngine;
 public class RingBuffer
 {
     const int frameLength = 256;
-    FrameInput[] frames = new FrameInput[frameLength];
+    C2SPlayerInput[] frames = new C2SPlayerInput[frameLength];
 
     public int LatestPtr {
         get { return this.latestPtr; }
@@ -16,7 +16,7 @@ public class RingBuffer
     //point to the checked ptr +1
     int checkedPtr = -1;
 
-    public void PushNewFrame(FrameInput f) {
+    public void PushNewFrame(C2SPlayerInput f) {
         latestPtr++;
         frames[latestPtr % frameLength] = f;
     }
@@ -25,11 +25,11 @@ public class RingBuffer
         return f == latestPtr;
     }
 
-    public FrameInput GetLatestFrame() {
+    public C2SPlayerInput GetLatestFrame() {
         return frames[latestPtr];
     }
 
-    public FrameInput GetFrame(int i) {
+    public C2SPlayerInput GetFrame(int i) {
         if (i < latestPtr) {
             int index = (i) % frameLength;
             return frames[index];
@@ -38,7 +38,7 @@ public class RingBuffer
         }
     }
 
-    public FrameInput GetNextFrame(int i) {
+    public C2SPlayerInput GetNextFrame(int i) {
         if (i < latestPtr) {
             int index = (i + 1) % frameLength;
             return frames[index];

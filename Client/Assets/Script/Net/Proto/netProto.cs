@@ -162,6 +162,23 @@ namespace CustomProtocol
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"S2CFrame")]
+  public partial class S2CFrame : global::ProtoBuf.IExtensible
+  {
+    public S2CFrame() {}
+    
+    private readonly global::System.Collections.Generic.List<CustomProtocol.C2SPlayerInput> _frameList = new global::System.Collections.Generic.List<CustomProtocol.C2SPlayerInput>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"frameList", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<CustomProtocol.C2SPlayerInput> frameList
+    {
+      get { return _frameList; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
     [global::ProtoBuf.ProtoContract(Name=@"MSG")]
     public enum MSG
     {

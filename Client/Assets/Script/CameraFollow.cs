@@ -8,14 +8,13 @@ using System.Collections;
             get => _target;
             set {
                 _target = value;
-                if(_target!= null)
-                    offset = transform.position - _target.position;
+                
             }
         } // The position that that camera will be following.
         public float smoothing = 5f;        // The speed with which the camera will be following.
 
 
-        Vector3 offset;                     // The initial offset from the target.
+        public Vector3 offset;                     // The initial offset from the target.
 
 
         void FixedUpdate (){

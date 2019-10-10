@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ViewBase : MonoBehaviour,ILife, IView {
 
-    Entity entity;
+    public Entity entity;
 
     public virtual void DoAwake() {
 

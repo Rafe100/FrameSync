@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Entity {
 
-
+    public Transform UnityTransform;
+    public FSTransform FSyncTransform = new FSTransform();
     Dictionary<string, ComponentBase> components = new Dictionary<string, ComponentBase>();
 
 

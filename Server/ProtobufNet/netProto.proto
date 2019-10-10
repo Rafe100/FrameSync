@@ -29,6 +29,13 @@ message C2SPlayerInput{
 	required int32 tick = 6;
 	required Vec3 pos = 7;
 	required int32 playerId = 8;
+	required bool isSimulate = 9;
+}
+
+message S2CFrame{
+
+	repeated C2SPlayerInput frameList=1;
+
 }
 
 enum MSG{

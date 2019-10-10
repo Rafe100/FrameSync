@@ -14,7 +14,7 @@ public class Frame : ILife
     float passTime = 0f;
     FSVector3 v3Dir = new FSVector3();
     FSVector3 endState = new FSVector3();
-    int speed = 100;
+    int speed = 1000;
     bool calculateNextState;
     public void PushFrame(FrameInput f) {
         if (!isFirstFrame) {
@@ -35,6 +35,7 @@ public class Frame : ILife
     public virtual void DoFixUpdate() {
         if(rbuffer.LatestPtr < 0) {
             //no frame
+            Debug.Log(this.PlayerId + " the player current frame is null" );
             return;
         }
         FrameInput fi = rbuffer.GetFrame(curFrameTick);
@@ -50,15 +51,21 @@ public class Frame : ILife
             v3Dir = GameManager.Input2Dir(fi, v3Dir);
             this.endState = this.playerEntity.FSyncTransform.pos + v3Dir * speed;
             //the endstate need to be save
+            if(v3Dir != FSVector3.Zero) {
+                int x = 9;
+            }
         }
-        passTime = +(Time.fixedDeltaTime * 1000);
+        if(passTime < 0 || passTime > GameManager.FrameInterval) {
+            Debug.LogError("the pass time is out of range :" + passTime);
+        }
+        passTime += (Time.fixedDeltaTime * 1000);
         passTime = Mathf.Min(passTime, GameManager.FrameInterval);
         float p = passTime / GameManager.FrameInterval;
         this.playerEntity.FSyncTransform.pos = FSVector3.Lerp(this.playerEntity.FSyncTransform.pos, endState, p);
-        if (passTime > GameManager.FrameInterval) {
+        if (passTime >= GameManager.FrameInterval) {
             calculateNextState = false;
-            //passTime = -GameManager.FrameInterval;
-            passTime = 0;
+            passTime -= GameManager.FrameInterval;
+            //passTime = 0;
 
             curFrameTick++;
         }

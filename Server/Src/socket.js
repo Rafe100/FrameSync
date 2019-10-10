@@ -8,6 +8,11 @@ console.log("program start");
 var playerId = 1000;
 var updPort = 3003;
 var allPlayer = new Array();
+var id2Proto = {};
+id2Proto[customProto.MSG.MSGID_SERVERFRAME] = customProto.C2SPlayerInput;
+
+var netMessageDispatcher = {};
+netMessageDispatcher[customProto.MSG.MSGID_SERVERFRAME] = frameMessage;
 
 var server = net.createServer(function (socket) {
 
@@ -72,7 +77,7 @@ function decode(data) {
     var encodeBuffer = data.slice(8, length - 6 + 8);
     console.log("deserialize length :" + encodeBuffer.length + typeof (encodeBuffer));
     var u8array = new Uint8Array(encodeBuffer);
-    var ack = customProto.PlayerConnectRsp.deserializeBinary(u8array);
+    var ack = id2Proto[t].deserializeBinary(u8array);
     return { id: t, obj: ack };
 }
 
@@ -98,13 +103,13 @@ udpSocket.on('listening', () => {
 udpSocket.on('message', (data, rinfo) => {
     console.log(`udpSocket receive message from ${rinfo.address}:${rinfo.port}`);
     var ack = decode(data);
-    if (ack.id == 2) {
-        console.log("the Playid :" + ack.obj.getPlayid());
-        console.log("udp port :" + ack.obj.getUdpport());
-    }
-
-
+    netMessageDispatcher[ack.id](data);
 
 });
+
+function frameMessage(data) {
+    console.log("frame msg " + typeof (data));
+    //console.log("frame is from " + data.getPlayerid() + " the tick is " + data.getTick());
+}
 
 udpSocket.bind('3003');

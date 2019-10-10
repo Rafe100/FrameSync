@@ -8,11 +8,13 @@ public class GameManager : SingleInstance<GameManager> {
     public InputUI PlayerInputUI;
     public GameObject PlayerGameObject;
     public CameraFollow FollowCamera;
+    public Color MainPlayerColor;
+    public Color OtherPlayerColor;
     public Dictionary<int, PlayerEntity> allPlayerEntity = new Dictionary<int, PlayerEntity>();
 
     bool serverGameStart = false;
     float timeInterval = 0;
-    public const int FrameInterval = 30;
+    public const int FrameInterval = 100;
     int localFrameTick = 0;
     EntityManager entityMgr = new EntityManager();
     MoveSystem moveSys = new MoveSystem();
@@ -20,7 +22,8 @@ public class GameManager : SingleInstance<GameManager> {
     Dictionary<int, Frame> allPlayerServerFrame = new Dictionary<int, Frame>();
 
     CustomProtocol.Vec3 curPlayerPos = new Vec3();
-    private void Awake() {
+    protected override void Awake() {
+        base.Awake();
         NetWorkManager.Instance.Register(ClientProtocol.MsgId_connect, SocketConnected);
         NetWorkManager.Instance.Register(MSG.Msgid_ServerFrame, ServerFrame);
         NetWorkManager.Instance.RegisterOnce(MSG.Msgid_GameStart, GameStart);
@@ -44,6 +47,10 @@ public class GameManager : SingleInstance<GameManager> {
                 //currenty player
                 curPlayer = entity;
             }
+            var f = new Frame();
+            f.playerEntity = entity;
+            f.PlayerId = x.playId;
+            allPlayerServerFrame[x.playId] = f;
         }
         NetWorkManager.Instance.CloseTcp();
         NetWorkManager.Instance.InitUdp(revData.udpPort);
@@ -58,12 +65,31 @@ public class GameManager : SingleInstance<GameManager> {
         //NetWorkManager.Instance.SendUDP(o);
     }
 
+    void CreateEntityAddToFrame(int pid) {
+        var entity = this.entityMgr.CreatePlayerEntity();
+        var f = new Frame();
+        f.playerEntity = entity;
+        f.PlayerId = pid;
+        allPlayerServerFrame[pid] = f;
+    }
+
     void ServerFrame(ReceiveData rev) {
+        S2CFrame f = rev.MsgObject as S2CFrame;
+        if (f == null || f.frameList == null) {
+            Debug.LogError("receive from server frame data is null");
+        }
+        for(int i = 0;i < f.frameList.Count; i++) {
+            var singleFrame = f.frameList[i];
+
+        }
+
+
 
     }
 
     private void FixedUpdate() {
         if (!serverGameStart) {
+            InputUI.isActive = true;
             return;
         }
         timeInterval += (Time.fixedDeltaTime * 1000);
@@ -71,6 +97,11 @@ public class GameManager : SingleInstance<GameManager> {
         if (timeInterval >= interval){
             timeInterval -= interval;
             SendPlayerInput();
+            PlayerInputUI.ResetInput();
+            InputUI.isActive = true;
+        }
+        foreach(var x in allPlayerServerFrame) {
+            x.Value.DoFixUpdate();
         }
         this.moveSys.DoFixUpdate();
     }
@@ -78,10 +109,10 @@ public class GameManager : SingleInstance<GameManager> {
     void SendPlayerInput() {
         var pInput = new C2SPlayerInput();
         pInput.tick = this.localFrameTick;
-        pInput.isUp = InputUI.isUp;
-        pInput.isDown = InputUI.isDown;
-        pInput.isLeft = InputUI.isLeft;
-        pInput.isRight = InputUI.isRight;
+        pInput.isUp = PlayerInputUI.isUp;
+        pInput.isDown = PlayerInputUI.isDown;
+        pInput.isLeft = PlayerInputUI.isLeft;
+        pInput.isRight = PlayerInputUI.isRight;
         pInput.hashCode = 1011;
         curPlayerPos.x = curPlayer.FSyncTransform.pos.X;
         curPlayerPos.y = curPlayer.FSyncTransform.pos.Y;
@@ -89,15 +120,13 @@ public class GameManager : SingleInstance<GameManager> {
         pInput.pos = curPlayerPos;
         pInput.playerId = this.playerId;
 
-        var localInput = new FrameInput();
-        localInput.Copy(pInput);
-        PushLocalFrameInput(localInput);
+        PushLocalFrameInput(pInput);
         NetWorkManager.Instance.SendUDP(pInput);
         localFrameTick++;
     }
 
 
-    void PushLocalFrameInput(FrameInput localInput) {
+    void PushLocalFrameInput(C2SPlayerInput localInput) {
         if (!allPlayerServerFrame.ContainsKey(this.playerId)) {
             Debug.Log("the allPlayerServerFrame do not contain local player id:" + playerId);
             return;
@@ -106,14 +135,27 @@ public class GameManager : SingleInstance<GameManager> {
         lframe.PushFrame(localInput);
     }
 
-    public static  FSVector3 Input2Dir(FrameInput localInput, FSVector3 v3) {
+    void PushFrameInput(C2SPlayerInput localInput,int pId) {
+        if (!allPlayerServerFrame.ContainsKey(pId)) {
+            Debug.Log("the allPlayerServerFrame do not contain local player id:" + playerId);
+            return;
+        }
+        var lframe = allPlayerServerFrame[pId];
+        lframe.PushFrame(localInput);
+    }
+
+    public static  FSVector3 Input2Dir(C2SPlayerInput localInput, FSVector3 v3) {
         if (localInput.isUp) {
+            Extension.Lg("/\\");
             v3.SetFSVector3(0, 0, 1);
         } else if (localInput.isRight) {
+            Extension.Lg(">");
             v3.SetFSVector3(1, 0, 0);
         } else if (localInput.isLeft) {
+            Extension.Lg("<");
             v3.SetFSVector3(-1, 0, 0);
         } else if (localInput.isDown) {
+            Extension.Lg("\\/");
             v3.SetFSVector3(0, 0, -1);
         }else {
             v3.SetFSVector3(0, 0, 0);

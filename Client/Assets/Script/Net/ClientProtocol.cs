@@ -12,6 +12,9 @@ public static class ClientProtocol
 
         _idDic[MsgId_connect] = typeof(CusNetMesConnected);
         _typeDic[typeof(CusNetMesConnected)] = MsgId_connect;
+
+        _idDic[(int)CustomProtocol.MSG.Msgid_ServerFrame] = typeof(CustomProtocol.C2SPlayerInput);
+        _typeDic[typeof(CustomProtocol.C2SPlayerInput)] = (int)CustomProtocol.MSG.Msgid_ServerFrame;
     }
 
 
